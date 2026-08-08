@@ -1,4 +1,4 @@
-name: "Java CI Pipeline (Analysis, Test & Coverage)"
+name: "Java CI Pipeline"
 
 on:
   push:
@@ -23,17 +23,13 @@ jobs:
           distribution: "temurin"
           cache: "gradle"
 
-      - name: "Grant execute permission for gradlew"
-        run: chmod +x gradlew
-
-
       - name: "Run Code Analysis (Checkstyle)"
-        run: ./gradlew checkstyleMain checkstyleTest
+        run: gradle checkstyleMain checkstyleTest
 
 
       - name: "Run Tests (Gradle Test)"
-        run: ./gradlew test
+        run: gradle test
 
 
       - name: "Generate Code Coverage Report (JaCoCo)"
-        run: ./gradlew jacocoTestReport
+        run: gradle jacocoTestReport
