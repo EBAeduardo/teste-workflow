@@ -13,7 +13,7 @@ class CalculatorTest {
 
     @Test
     void testSubtract() {
-        assertEquals(6.0, calculator.subtract(10.0, 4.0), "10 - 4 deve ser 6");
+        assertEquals(6.0, calculator.subtract(10.0, 5.0), "10 - 4 deve ser 6");
     }
 
     @Test
