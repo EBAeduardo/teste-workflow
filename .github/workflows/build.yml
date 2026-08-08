@@ -10,7 +10,7 @@ on:
   
 permissions:
   contents: write
-
+  
 jobs:
   build:
     runs-on: "ubuntu-latest"
@@ -26,32 +26,56 @@ jobs:
           distribution: "temurin"
           cache: "gradle"
 
+      # Adicionamos um 'id' a cada passo para capturar o outcome
       - name: "Run Code Analysis (Checkstyle)"
+        id: analysis
         continue-on-error: true
-        run: gradle checkstyleMain checkstyleTest >> log-execucao.txt 2>&1
-
+        run: gradle checkstyleMain checkstyleTest
 
       - name: "Run Tests (Gradle Test)"
+        id: tests
         continue-on-error: true
-        run: gradle test >> log-execucao.txt 2>&1
-
+        run: gradle test
 
       - name: "Generate Code Coverage Report (JaCoCo)"
+        id: coverage
         continue-on-error: true
-        run: gradle jacocoTestReport >> log-execucao.txt 2>&1
+        run: gradle jacocoTestReport
 
-      - name: "commit relatorio"
+      - name: "Update README with Outcomes"
         run: |
-          echo "## Relatório de Execução do Gradle" >> relatorio-build.md
-          echo "> Atualizado automaticamente pelo GitHub Actions." >> relatorio-build.md
-          echo "" >> relatorio-build.md
-          echo "\`\`\`text" >> relatorio-build.md
-          cat log-execucao.txt >> relatorio-build.md
-          echo "\`\`\`" >> relatorio-build.md
+          # Captura os outcomes das variáveis de contexto do GitHub
+          ANALYSIS_STATUS="${{ steps.analysis.outcome }}"
+          TESTS_STATUS="${{ steps.tests.outcome }}"
+          COVERAGE_STATUS="${{ steps.coverage.outcome }}"
+
+          get_icon() {
+            if [ "$1" == "success" ]; then echo "✅ Passou"; else echo "❌ Falhou"; fi
+          }
+
+          ANALYSIS_ICON=$(get_icon "$ANALYSIS_STATUS")
+          TESTS_ICON=$(get_icon "$TESTS_STATUS")
+          COVERAGE_ICON=$(get_icon "$COVERAGE_STATUS")
+
+          # Cria o texto que será injetado
+          NEW_CONTENT="<!-- START_BUILD_STATUS -->\n### 📊 Status do Último Build\n| Etapa | Status |\n|---|---|\n| 🔍 Análise Estática | $ANALYSIS_ICON |\n| 🧪 Testes Unitários | $TESTS_ICON |\n| 📈 Cobertura de Código | $COVERAGE_ICON |\n<!-- END_BUILD_STATUS -->"
+
+          awk -v new_content="$NEW_CONTENT" '
+            /<!-- START_BUILD_STATUS -->/ {
+              print new_content
+              skip=1
+              next
+            }
+            /<!-- END_BUILD_STATUS -->/ {
+              skip=0
+              next
+            }
+            !skip { print }
+          ' README.md > temp.md && mv temp.md README.md
 
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-          git add relatorio-build.md
-          git commit -m "fix: atualiza relatorio de build [skip ci]" || echo "Sem mudanças"
+          
+          git add README.md
+          git commit -m "docs: atualiza status do build no README [skip ci]" || echo "Sem mudanças para comitar"
           git push
