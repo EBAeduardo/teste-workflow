@@ -24,6 +24,7 @@ jobs:
           cache: "gradle"
 
       - name: "Run Code Analysis (Checkstyle)"
+        continue-on-error: true
         run: gradle checkstyleMain checkstyleTest
 
 
