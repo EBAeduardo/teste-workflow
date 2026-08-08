@@ -7,6 +7,6 @@ Aqui fica a descrição do seu projeto...
 | Etapa | Status |
 |---|---|
 | 🔍 Análise Estática | ❌ Falhou |
-| 🧪 Testes Unitários | ❌ Falhou |
-| 📈 Cobertura de Código | ❌ Falhou |
+| 🧪 Testes Unitários | ✅ Passou |
+| 📈 Cobertura de Código | ✅ Passou |
 <!-- END_BUILD_STATUS -->
