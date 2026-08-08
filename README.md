@@ -1,5 +1,3 @@
-# Meu Projeto Calculadora
-
 Aqui fica a descrição do seu projeto...
 
 <!-- START_BUILD_STATUS -->
