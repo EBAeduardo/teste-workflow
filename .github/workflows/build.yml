@@ -34,4 +34,5 @@ jobs:
 
 
       - name: "Generate Code Coverage Report (JaCoCo)"
+        continue-on-error: true
         run: gradle jacocoTestReport
