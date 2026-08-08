@@ -7,6 +7,9 @@ on:
   pull_request:
     branches:
       - "main"
+  
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -25,14 +28,30 @@ jobs:
 
       - name: "Run Code Analysis (Checkstyle)"
         continue-on-error: true
-        run: gradle checkstyleMain checkstyleTest
+        run: gradle checkstyleMain checkstyleTest >> log-execucao.txt 2>&1
 
 
       - name: "Run Tests (Gradle Test)"
         continue-on-error: true
-        run: gradle test
+        run: gradle test >> log-execucao.txt 2>&1
 
 
       - name: "Generate Code Coverage Report (JaCoCo)"
         continue-on-error: true
-        run: gradle jacocoTestReport
+        run: gradle jacocoTestReport >> log-execucao.txt 2>&1
+
+      - name: "commit relatorio"
+        run: |
+          echo "## Relatório de Execução do Gradle" >> relatorio-build.md
+          echo "> Atualizado automaticamente pelo GitHub Actions." >> relatorio-build.md
+          echo "" >> relatorio-build.md
+          echo "\`\`\`text" >> relatorio-build.md
+          cat log-execucao.txt >> relatorio-build.md
+          echo "\`\`\`" >> relatorio-build.md
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add relatorio-build.md
+          git commit -m "fix: atualiza relatorio de build [skip ci]" || echo "Sem mudanças"
+          git push
